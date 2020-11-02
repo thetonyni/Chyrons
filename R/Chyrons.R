@@ -1,30 +1,23 @@
-#' Discs for Disc Golf
+#' Chyrons
 #'
-#' This package contains specifications for discs approved by
-#' the Professional Disc Golf Association
+#' This package contains information regarding the variables
+#' for Chyrons
 #' @docType package
 #' @name DiscGolf
 #' @aliases DiscGolf DiscGolf-package
 NULL
 
-#' "Golf Discs"
+#' "Chyrons"
 #'
-#' A data set containing golf discs approved by
-#' the Professional Disc Golf Association
-#' as of October, 2020
+#' A data set containing information regarding chyrons
+#' from the time period 9/23/20 to 10/4/20.
 #'
-#' @source \url{https://www.pdga.com/introduction}
-#' @format A dataframe with 1260 elements
+#' @source \url{https://archive.org/services/third-eye.php}
+#' @format A dataframe with 21306 elements
 #' \describe{
-#'   \item{approved_date}{Data the disc was approved}
-#'   \item{class}{Class of disc}
-#'   \item{diameter}{Diameter of disc (in cm)}
-#'   \item{flexibility}{Flexibility of disc (in kg)}
-#'   \item{height}{Height of disc (in cm)}
-#'   \item{manufacturer}{Manufacturer/distributor}
-#'   \item{model}{Disc model}
-#'   \item{rim_depth}{Rim depth (in cm)}
-#'   \item{rim_thickness}{Rim thickness (in cm)}
-#'   \item{weight}{Weight (in gm)}
+#'   \item{date_time_utc}{Date and time in UTC in the format M/DD/YYYY H:MM}
+#'   \item{channel}{News channel (of the chyron)}
+#'   \item{duration}{Time (in seconds) the chyron showed on screen}
+#'   \item{text}{Text of the chyron}
 #' }
-"DiscGolf"
+"Chyrons"
