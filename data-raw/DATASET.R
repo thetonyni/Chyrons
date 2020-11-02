@@ -1,7 +1,7 @@
 ## code to prepare `DATASET` dataset goes here
 library(tidyverse)
 chyrons <- readr::read_csv(
-  "data-raw/20200928-to-20201004.csv") %>%
+  "20200928-to-20201004.csv") %>%
   janitor::clean_names() %>%
   select(-https_archive_org_details)
 
