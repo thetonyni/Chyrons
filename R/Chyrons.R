@@ -3,8 +3,8 @@
 #' This package contains information regarding the variables
 #' for Chyrons
 #' @docType package
-#' @name DiscGolf
-#' @aliases DiscGolf DiscGolf-package
+#' @name Chyrons
+#' @aliases Chyrons Chyrons-package
 NULL
 
 #' "Chyrons"
