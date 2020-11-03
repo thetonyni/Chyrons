@@ -5,8 +5,7 @@ Authors@R:
     person(given = "Tony",
            family = "Ni",
            role = c("aut", "cre"),
-           email = "thetonyni@gmail.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "thetonyni@gmail.com")
 Description: This data package contains useful information regarding chyrons and how to work with them.
 License: MIT + file LICENSE
 Encoding: UTF-8
