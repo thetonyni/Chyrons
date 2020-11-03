@@ -39,7 +39,6 @@ devtools::install_github("thetonyni/Chyrons")
 A brief example to investigate whether or not if different news channels had tendencies toward using certain words more than others is conducted below through a sentiment analysis with the words used in the chyrons for the four news networks available in the dataset.
 
 ```{r, include=FALSE}
-
 library(mosaic)   # Load additional packages here 
 library(tidyverse)
 library(tidytext)
@@ -48,11 +47,6 @@ library(lubridate)
 library(knitr)
 library(kableExtra)
 library(Chyrons)
-```
-
-```{r}
-#reading in data
-df <- Chyrons::chyrons_df
 ```
 
 ```{r, include=FALSE}
@@ -111,7 +105,7 @@ stop_words <- stop_words %>%
 
 ```{r, message = FALSE, warning = FALSE}
 #unnesting words
-word_counts <- df %>%
+word_counts <- chyrons_df %>%
   tidytext::unnest_tokens(word, text) %>% #unnest
   anti_join(stop_words, by = "word") %>% #remove stopwords
   count(channel, word, sort = TRUE) %>%

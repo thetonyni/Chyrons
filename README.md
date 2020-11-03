@@ -34,13 +34,8 @@ below through a sentiment analysis with the words used in the chyrons
 for the four news networks available in the dataset.
 
 ``` r
-#reading in data
-df <- Chyrons::chyrons_df
-```
-
-``` r
 #unnesting words
-word_counts <- df %>%
+word_counts <- chyrons_df %>%
   tidytext::unnest_tokens(word, text) %>% #unnest
   anti_join(stop_words, by = "word") %>% #remove stopwords
   count(channel, word, sort = TRUE) %>%
@@ -129,7 +124,7 @@ ggplot(nrc_combined_long, aes(x = sentiment)) +
   ggtitle("Proportion of Sentiment Words by Channel")
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 From the barplot there aren’t any glaring differences between any of the
 four channels.
