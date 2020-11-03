@@ -7,7 +7,8 @@
 
 <!-- badges: end -->
 
-The goal of Chyrons is to …
+The goal of the Chyrons package, is to provide an example as to how to
+work with textual data – in the form of chyrons.
 
 ## Installation
 
@@ -27,33 +28,120 @@ devtools::install_github("thetonyni/Chyrons")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+A brief example to investigate whether or not if different news channels
+had tendencies toward using certain words more than others is conducted
+below through a sentiment analysis with the words used in the chyrons
+for the four news networks available in the dataset.
 
 ``` r
-library(Chyrons)
-## basic example code
+#reading in data
+df <- Chyrons::chyrons_df
 ```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+#unnesting words
+word_counts <- df %>%
+  tidytext::unnest_tokens(word, text) %>% #unnest
+  anti_join(stop_words, by = "word") %>% #remove stopwords
+  count(channel, word, sort = TRUE) %>%
+  ungroup()
+
+#creating datasets to separate by channel
+cnn_words <- word_counts %>%
+  filter(channel == "CNNW")
+msnbc_words <- word_counts %>%
+  filter(channel == "MSNBCW")
+bbc_words <- word_counts %>%
+  filter(channel == "BBCNEWS")
+fox_words <- word_counts %>%
+  filter(channel == "FOXNEWSW")
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date.
+``` r
+#get nrc sentiments
+nrc_lexicon <- get_sentiments("nrc")
 
-You can also embed plots, for example:
+#join the word frequency dataset by nrc lexicon
+nrc_bbc<- left_join(bbc_words, nrc_lexicon, by = "word")
+nrc_cnn<- left_join(cnn_words, nrc_lexicon, by = "word")
+nrc_fox<- left_join(fox_words, nrc_lexicon, by = "word")
+nrc_msnbc<- left_join(msnbc_words, nrc_lexicon, by = "word")
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
+#summarize sentiments counts
+nrc_bbc_data <- nrc_bbc %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("bbc_n" = "n")
+#> `summarise()` ungrouping output (override with `.groups` argument)
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub\!
+nrc_cnn_data <- nrc_cnn %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("cnn_n" = "n")
+#> `summarise()` ungrouping output (override with `.groups` argument)
+
+nrc_fox_data <- nrc_fox %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("fox_n" = "n")
+#> `summarise()` ungrouping output (override with `.groups` argument)
+
+nrc_msnbc_data <- nrc_msnbc %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("msnbc_n" = "n")
+#> `summarise()` ungrouping output (override with `.groups` argument)
+```
+
+``` r
+#combining channel sentiment counts
+nrc_combined_data <- cbind(nrc_bbc_data, nrc_cnn_data, 
+                           nrc_fox_data, nrc_msnbc_data)
+
+nrc_combined_data <- nrc_combined_data %>%
+  select(c(1, 2, 4, 6, 8))
+
+nrc_combined_long <- gather(nrc_combined_data, 
+                            key = "channel", 
+                            value = "count", -sentiment)
+```
+
+``` r
+#getting proportion by channel
+nrc_combined_long <- nrc_combined_long %>% 
+   group_by(channel) %>%
+   mutate(prop = count/sum(count))
+
+#plotting combined sentiment (by proportion)
+ggplot(nrc_combined_long, aes(x = sentiment)) +
+  geom_col(aes(fill=channel, y = prop), position = "dodge") +
+  coord_flip() +
+  xlab("Sentiment") +
+  ylab("Proportion") +
+  ggtitle("Proportion of Sentiment Words by Channel")
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+
+From the barplot there aren’t any glaring differences between any of the
+four channels.
+
+We can see that Fox uses more trust, sadness, joy, and anticipation
+words than the other 3 channels, but only by a small margin.
+
+BBC seems to use far more positive words than the other 3 channels, but
+also uses anger words more than the other 3 channels as well.
+
+CNN and MSNBC are both tied for using the highest proportion of negative
+words amongst all 4 channels.
+
+This is just an introductory example as to how to work with the chyrons
+dataset provided in this package.

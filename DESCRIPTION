@@ -1,5 +1,5 @@
 Package: Chyrons
-Title: What the Package Does (One Line, Title Case)
+Title: Working with Chyrons as Textual Data
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Tony",
@@ -18,6 +18,5 @@ Depends:
 URL: https://github.com/thetonyni/Chyrons
 BugReports: https://github.com/thetonyni/Chyrons/issues
 Suggests: 
-    knitr,
-    rmarkdown
+    knitr
 VignetteBuilder: knitr

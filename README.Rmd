@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of Chyrons is to ...
+The goal of the Chyrons package, is to provide an example as to how to work with textual data -- in the form of chyrons.
 
 ## Installation
 
@@ -36,25 +36,173 @@ devtools::install_github("thetonyni/Chyrons")
 ```
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+A brief example to investigate whether or not if different news channels had tendencies toward using certain words more than others is conducted below through a sentiment analysis with the words used in the chyrons for the four news networks available in the dataset.
 
-```{r example}
+```{r, include=FALSE}
+
+library(mosaic)   # Load additional packages here 
+library(tidyverse)
+library(tidytext)
+library(topicmodels)
+library(lubridate)
+library(knitr)
+library(kableExtra)
 library(Chyrons)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
+```{r}
+#reading in data
+df <- Chyrons::chyrons_df
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
+```{r, include=FALSE}
+#adding custom stop words
+stop_words <- stop_words
+stop_words <- stop_words %>%
+  add_row(word= "00b0", lexicon = "NA") %>%
+  add_row(word= "wh", lexicon = "NA") %>%
+  add_row(word= "ow", lexicon = "NA") %>%
+  add_row(word= "afi'er", lexicon = "NA") %>%
+  add_row(word= "v", lexicon = "NA") %>%
+  add_row(word= "n", lexicon = "NA")%>%
+  add_row(word= "ii", lexicon = "NA")%>%
+  add_row(word= "d", lexicon = "NA")%>%
+  add_row(word= "w", lexicon = "NA")%>%
+  add_row(word= "biutn", lexicon = "NA")%>%
+  add_row(word= "ihuivii", lexicon = "NA")%>%
+  add_row(word= "ooo", lexicon = "NA")%>%
+  add_row(word= "r", lexicon = "NA")%>%
+  add_row(word= "nfratfe", lexicon = "NA")%>%
+  add_row(word= "utba", lexicon = "NA")%>%
+  add_row(word= "eb", lexicon = "NA")%>%
+  add_row(word= "i'uh", lexicon = "NA")%>%
+  add_row(word= "s", lexicon = "NA")%>%
+  add_row(word= "iruivip", lexicon = "NA")%>%
+  add_row(word= "uhau", lexicon = "NA")%>%
+  add_row(word= "d", lexicon = "NA")%>%
+  add_row(word= "iu", lexicon = "NA")%>%
+  add_row(word= "eeii", lexicon = "NA")%>%
+  add_row(word= "i'thlutnl", lexicon = "NA")%>%
+  add_row(word= "i'inish", lexicon = "NA")%>%
+  add_row(word= "eh", lexicon = "NA")%>%
+  add_row(word= "uuhunavihud", lexicon = "NA")%>%
+  add_row(word= "f", lexicon = "NA")%>%
+  add_row(word= "u", lexicon = "NA")%>%
+  add_row(word= "ial", lexicon = "NA")%>%
+  add_row(word= "mp5", lexicon = "NA")%>%
+  add_row(word= "ltblb", lexicon = "NA")%>%
+  add_row(word= "m", lexicon = "NA")%>%
+  add_row(word= "o", lexicon = "NA")%>%
+  add_row(word= "fb02l", lexicon = "NA")%>%
+  add_row(word= "nnmrs", lexicon = "NA")%>%
+  add_row(word= "eei", lexicon = "NA")%>%
+  add_row(word= "prtsiutn", lexicon = "NA")%>%
+  add_row(word= "h", lexicon = "NA")%>%
+  add_row(word= "m", lexicon = "NA")%>%
+  add_row(word= "e", lexicon = "NA")%>%
+  add_row(word= "t9", lexicon = "NA")%>%
+  add_row(word= "fb02", lexicon = "NA")%>%
+  add_row(word= "ihuivip", lexicon = "NA")%>%
+  add_row(word= "x", lexicon = "NA")%>%
+  add_row(word= "ul", lexicon = "NA")%>%
+  add_row(word= "d", lexicon = "NA")%>%
+  add_row(word= "80o", lexicon = "NA")
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
+```{r, message = FALSE, warning = FALSE}
+#unnesting words
+word_counts <- df %>%
+  tidytext::unnest_tokens(word, text) %>% #unnest
+  anti_join(stop_words, by = "word") %>% #remove stopwords
+  count(channel, word, sort = TRUE) %>%
+  ungroup()
+
+#creating datasets to separate by channel
+cnn_words <- word_counts %>%
+  filter(channel == "CNNW")
+msnbc_words <- word_counts %>%
+  filter(channel == "MSNBCW")
+bbc_words <- word_counts %>%
+  filter(channel == "BBCNEWS")
+fox_words <- word_counts %>%
+  filter(channel == "FOXNEWSW")
+```
+
+```{r}
+#get nrc sentiments
+nrc_lexicon <- get_sentiments("nrc")
+
+#join the word frequency dataset by nrc lexicon
+nrc_bbc<- left_join(bbc_words, nrc_lexicon, by = "word")
+nrc_cnn<- left_join(cnn_words, nrc_lexicon, by = "word")
+nrc_fox<- left_join(fox_words, nrc_lexicon, by = "word")
+nrc_msnbc<- left_join(msnbc_words, nrc_lexicon, by = "word")
+
+#summarize sentiments counts
+nrc_bbc_data <- nrc_bbc %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("bbc_n" = "n")
+
+nrc_cnn_data <- nrc_cnn %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("cnn_n" = "n")
+
+nrc_fox_data <- nrc_fox %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("fox_n" = "n")
+
+nrc_msnbc_data <- nrc_msnbc %>%
+  filter(sentiment != "NA") %>%
+  group_by(sentiment) %>%
+  summarize(n = n())%>%
+  arrange(desc(n)) %>%
+  rename("msnbc_n" = "n")
+```
+
+```{r}
+#combining channel sentiment counts
+nrc_combined_data <- cbind(nrc_bbc_data, nrc_cnn_data, 
+                           nrc_fox_data, nrc_msnbc_data)
+
+nrc_combined_data <- nrc_combined_data %>%
+  select(c(1, 2, 4, 6, 8))
+
+nrc_combined_long <- gather(nrc_combined_data, 
+                            key = "channel", 
+                            value = "count", -sentiment)
+```
+
+```{r, fig.width = 7, fig.height=6}
+#getting proportion by channel
+nrc_combined_long <- nrc_combined_long %>% 
+   group_by(channel) %>%
+   mutate(prop = count/sum(count))
+
+#plotting combined sentiment (by proportion)
+ggplot(nrc_combined_long, aes(x = sentiment)) +
+  geom_col(aes(fill=channel, y = prop), position = "dodge") +
+  coord_flip() +
+  xlab("Sentiment") +
+  ylab("Proportion") +
+  ggtitle("Proportion of Sentiment Words by Channel")
+```
+
+From the barplot there aren't any glaring differences between any of the four channels.
+
+We can see that Fox uses more trust, sadness, joy, and anticipation words than the other 3 channels, but only by a small margin.
+
+BBC seems to use far more positive words than the other 3 channels, but also uses anger words more than the other 3 channels as well.
+
+CNN and MSNBC are both tied for using the highest proportion of negative words amongst all 4 channels.
+
+This is just an introductory example as to how to work with the chyrons dataset provided in this package.
+
