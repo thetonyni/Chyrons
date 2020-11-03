@@ -1,4 +1,3 @@
-## code to prepare `DATASET` dataset goes here
 library(tidyverse)
 chyrons <- readr::read_csv(
   "20200928-to-20201004.csv") %>%
@@ -17,4 +16,4 @@ chyrons_wrangled_3 <- chyrons_wrangled_2 %>% #remove \
 chyrons_df <- chyrons_wrangled_3 %>% #remove all O's in numbers with zeroes
   mutate(text = str_replace_all(text, "(?<=[0-9])O", "0"))
 
-usethis::use_data(chyrons_df)
+usethis::use_data(chyrons_df, overwrite = TRUE)
