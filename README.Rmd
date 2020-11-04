@@ -105,7 +105,7 @@ stop_words <- stop_words %>%
 ```
 
 ```{r, message = FALSE, warning = FALSE}
-#unnesting words
+#unnesting word
 word_counts <- Chyrons %>%
   tidytext::unnest_tokens(word, text) %>% #unnest
   anti_join(stop_words, by = "word") %>% #remove stopwords

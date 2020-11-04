@@ -35,7 +35,7 @@ for the four news networks available in the dataset.
 
 ``` r
 #unnesting words
-word_counts <- chyrons_df %>%
+word_counts <- Chyrons %>%
   tidytext::unnest_tokens(word, text) %>% #unnest
   anti_join(stop_words, by = "word") %>% #remove stopwords
   count(channel, word, sort = TRUE) %>%
