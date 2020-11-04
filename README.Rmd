@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # Chyrons
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The goal of the Chyrons package, is to provide an example as to how to work with textual data -- in the form of chyrons.
@@ -105,7 +106,7 @@ stop_words <- stop_words %>%
 
 ```{r, message = FALSE, warning = FALSE}
 #unnesting words
-word_counts <- chyrons_df %>%
+word_counts <- Chyrons %>%
   tidytext::unnest_tokens(word, text) %>% #unnest
   anti_join(stop_words, by = "word") %>% #remove stopwords
   count(channel, word, sort = TRUE) %>%

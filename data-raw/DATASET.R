@@ -13,7 +13,7 @@ chyrons_wrangled_2 <- chyrons_wrangled %>% #remove \u
 chyrons_wrangled_3 <- chyrons_wrangled_2 %>% #remove \
   mutate(text = str_replace_all(text, "\\\\", " "))
 
-chyrons_df <- chyrons_wrangled_3 %>% #remove all O's in numbers with zeroes
+Chyrons <- chyrons_wrangled_3 %>% #remove all O's in numbers with zeroes
   mutate(text = str_replace_all(text, "(?<=[0-9])O", "0"))
 
-usethis::use_data(chyrons_df, overwrite = TRUE)
+usethis::use_data(Chyrons, overwrite = TRUE)
